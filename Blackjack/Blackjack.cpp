@@ -41,27 +41,27 @@ void printCard(const Card &card)
 {
     switch(card.rank)
     {
-        case RANK_2: std::cout << '2'; break;
-        case RANK_3: std::cout << '3'; break;
-        case RANK_4: std::cout << '4'; break;
-        case RANK_5: std::cout << '5'; break;
-        case RANK_6: std::cout << '6'; break;
-        case RANK_7: std::cout << '7'; break;
-        case RANK_8: std::cout << '8'; break;
-        case RANK_9: std::cout << '9'; break;
-        case RANK_10: std::cout << 'T'; break;
-        case RANK_JACK: std::cout << 'J'; break;
+        case RANK_2:     std::cout << '2'; break;
+        case RANK_3:     std::cout << '3'; break;
+        case RANK_4:     std::cout << '4'; break;
+        case RANK_5:     std::cout << '5'; break;
+        case RANK_6:     std::cout << '6'; break;
+        case RANK_7:     std::cout << '7'; break;
+        case RANK_8:     std::cout << '8'; break;
+        case RANK_9:     std::cout << '9'; break;
+        case RANK_10:    std::cout << 'T'; break;
+        case RANK_JACK:  std::cout << 'J'; break;
         case RANK_QUEEN: std::cout << 'Q'; break;
-        case RANK_KING: std::cout << 'K'; break;
-        case RANK_ACE: std::cout << 'A'; break;
+        case RANK_KING:  std::cout << 'K'; break;
+        case RANK_ACE:   std::cout << 'A'; break;
     }
     
     switch(card.suit)
     {
-        case SUIT_CLUB: std::cout << 'C'; break;
+        case SUIT_CLUB:    std::cout << 'C'; break;
         case SUIT_DIAMOND: std::cout << 'D'; break;
-        case SUIT_HEART: std::cout << 'H'; break;
-        case SUIT_SPADE: std::cout << 'S'; break;
+        case SUIT_HEART:   std::cout << 'H'; break;
+        case SUIT_SPADE:   std::cout << 'S'; break;
     }
 }
 
@@ -90,12 +90,6 @@ void shuffleDeck(std::array<Card, 52> &deck)
     // Create a reusable random number generator that generates uniform numbers between 1 and 6
 	std::uniform_int_distribution<> randomCard(0, 51);
 
-    // for (int i = 0; i < 6; ++i)
-    // {
-    //     printCard(deck[randomCard(mersenne)]);
-    //     std::cout << ' ';
-    // }
-
     using index_t = std::array<Card, 52>::size_type;
     for (index_t index = 0; index < 52; ++index)
     {
@@ -104,15 +98,216 @@ void shuffleDeck(std::array<Card, 52> &deck)
     }
 }
 
-// void getValue(Card &card)
-// {
+int getCardValue(Card &card)
+{
+    switch(card.rank)
+    {
+        case RANK_2:     return 2;
+        case RANK_3:     return 3;
+        case RANK_4:     return 4;
+        case RANK_5:     return 5;
+        case RANK_6:     return 6;
+        case RANK_7:     return 7;
+        case RANK_8:     return 8;
+        case RANK_9:     return 9;
+        case RANK_10:    return 10;
+        case RANK_JACK:  return 10;
+        case RANK_QUEEN: return 10;
+        case RANK_KING:  return 10;
+        case RANK_ACE:   return 11;
+    }
+
+    return 0;
+}
+
+int getHandValue(std::vector<Card> hand)
+{
+    int count { 0 };
+    for (std::size_t i=0; i < hand.size(); ++i)
+    {
+        count += getCardValue(hand[i]);
+    }
+    return count;
+}
+
+void printHand(std::vector<Card> hand)
+{
+    for (std::size_t i=0; i < hand.size(); ++i)
+    {
+        printCard(hand[i]);
+        std::cout << ' ';
+    }
+}
+
+bool hitMe()
+{
+    while (true) // Loop until user gets a valid answer
+    {
+        std::cout << "Would you like to hit or stand (h/s)? ";
+        char c { 's' };
+        std::cin >> c;
+
+        if (c == 'h')
+            return true;
+        else if (c == 's')
+            return false;
+        else
+            continue;
+    }
+}
+
+bool playerPlays(std::array<Card, 52> &deck, std::vector<Card> &playerHand, int &deckIndex)
+{
+    int playerVal {};
+    int dealerVal {};
+
+    ++deckIndex;
+    playerHand.push_back(deck[deckIndex]);
+    std::cout << "Your hand is: ";
+    printHand(playerHand);
+    std::cout << '\n';
+
+    playerVal = getHandValue(playerHand);
+
+    if (playerVal > 21) // player loses
+    {
+        std::cout << "player bust, dealer wins... D:\n";
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+void playBlackjack(std::array<Card, 52> &deck)
+{
+    shuffleDeck(deck);
+
+    // Initialize player and dealer hand's as vectors
+    std::vector<Card> dealerHand;
+    std::vector<Card> playerHand;
+    int deckIndex { 0 };
+
+    // dealer draws one card up and one card down, print to console and store to dealer's hand
+    std::cout << "The dealer's first card is: ";
+    printCard(deck[deckIndex]);
+    std::cout << '\n';
+    dealerHand.push_back(deck[deckIndex]);
+
+    // Store dealer's second card to hand but dont print to console
+    ++deckIndex;
+    dealerHand.push_back(deck[deckIndex]);
+
+
+    // player is dealt two cards, print to console and store to player's hand
+    ++deckIndex;
+    std::cout << "Your hand is: ";
+    printCard(deck[deckIndex]);
+    playerHand.push_back(deck[deckIndex]);
+    std::cout << ' ';
+
+    // Player second card
+    ++deckIndex; 
+    printCard(deck[deckIndex]);
+    playerHand.push_back(deck[deckIndex]);
+    std::cout << '\n';
+
+    // Win state initialization
+    // 1 = player bust
+    // 2 = dealer bust
+    // 3 = eval both hands
+    int winState {0};
+    int playerVal {0};
+    int dealerVal {0};
+
+    // Player draw phase
+    bool isHitMe {true};
+    bool isPlayerBust {false};
+    isHitMe = hitMe();
+
+    while (isHitMe)
+    {
+        ++deckIndex;
+        playerHand.push_back(deck[deckIndex]);
+        std::cout << "Your hand is: ";
+        printHand(playerHand);
+        std::cout << '\n';
+
+        playerVal = getHandValue(playerHand);
+
+        if (playerVal > 21) // player loses
+        {
+            isPlayerBust = true;
+            std::cout << "Player Bust... Dealer wins... D:\n";
+            break;
+        }
+        else if (playerVal == 21)
+        {
+            std::cout << "Blackjack! Let's hope the dealer doesn't also have blackjack.\n";
+            break;
+        }
+        isHitMe = hitMe();
+    }
+
+    // Dealer draw phase
+    bool isDealerBust {false};
+
+    playerVal = getHandValue(playerHand);
+    dealerVal = getHandValue(dealerHand);
     
-// }
+    if (isPlayerBust == false)
+    {
+        std::cout << "The dealer flips the hidden card. Dealer's hand is: ";
+        printHand(dealerHand);
+        std::cout << '\n';
+    }
+
+    while (isPlayerBust == false)
+    {
+        if (dealerVal < 17)
+        {
+            std::cout << "Dealer draws again\n";
+            ++deckIndex;
+            dealerHand.push_back(deck[deckIndex]);
+            dealerVal += getCardValue(deck[deckIndex]);
+            printHand(dealerHand);
+            std::cout << '\n';
+        }
+        else if (dealerVal > 21)
+        {
+            isDealerBust = true;
+            std::cout << "Dealer Bust!! You Win!!\n";
+            break;
+        }
+        else
+            break;
+    }
+
+    if (isPlayerBust == false && isDealerBust == false)
+    {
+        std::cout << "dealer's score is " << dealerVal << " player's score is " << playerVal << '\n';
+
+        if (dealerVal > playerVal)
+        {
+            std::cout << "dealer wins... D:\n";
+        }
+        else if (dealerVal < playerVal)
+        {
+            std::cout << "You win!!\n";
+        }
+        else
+        {
+            std::cout << "it's a tie, the dealer wins... D:\n";
+        }
+    }
+}
 
 int main()
 {
-    // // Personal solution for deck printing
+    // // Initialize deck personal solution
     // // for (std::array<int, 4>::size_type i { 0 }; i < MAX_SUITS; ++i) // everything in one for loop
+    // // using index_t = std::array<Card, 52>::size_type; // TODO make index correct DType
     // Card cardTemp = {};
     // int counter { 0 };
     // std::array<Card, 52> deck {};
@@ -126,7 +321,7 @@ int main()
     //     }
     // }
 
-    // We could initialize each card individually, but that would be a pain.  Let's use a loop.
+    // Initialize deck tutorial solution
     std::array<Card, 52> deck;
 	using index_t = std::array<Card, 52>::size_type;
 	index_t card = 0;
@@ -137,15 +332,8 @@ int main()
 		deck[card].rank = static_cast<CardRank>(rank);
 		++card;
 	}
-    
-    printDeck(deck);
 
-    // swapCard(deck[0], deck[1]);
-    shuffleDeck(deck);
-
-    printDeck(deck);
-
-    // getValue();
+    playBlackjack(deck);
 
     return 0;
 }
