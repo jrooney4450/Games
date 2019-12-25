@@ -156,30 +156,6 @@ bool hitMe()
     }
 }
 
-bool playerPlays(std::array<Card, 52> &deck, std::vector<Card> &playerHand, int &deckIndex)
-{
-    int playerVal {};
-    int dealerVal {};
-
-    ++deckIndex;
-    playerHand.push_back(deck[deckIndex]);
-    std::cout << "Your hand is: ";
-    printHand(playerHand);
-    std::cout << '\n';
-
-    playerVal = getHandValue(playerHand);
-
-    if (playerVal > 21) // player loses
-    {
-        std::cout << "player bust, dealer wins... D:\n";
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
 void playBlackjack(std::array<Card, 52> &deck)
 {
     shuffleDeck(deck);
