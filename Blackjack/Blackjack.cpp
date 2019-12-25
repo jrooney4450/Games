@@ -213,11 +213,6 @@ void playBlackjack(std::array<Card, 52> &deck)
     playerHand.push_back(deck[deckIndex]);
     std::cout << '\n';
 
-    // Win state initialization
-    // 1 = player bust
-    // 2 = dealer bust
-    // 3 = eval both hands
-    int winState {0};
     int playerVal {0};
     int dealerVal {0};
 
