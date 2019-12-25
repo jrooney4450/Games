@@ -120,21 +120,21 @@ int getCardValue(Card &card)
     return 0;
 }
 
-int getHandValue(std::vector<Card> hand)
+int getHandValue(std::vector<Card> &handOut)
 {
     int count { 0 };
-    for (std::size_t i=0; i < hand.size(); ++i)
+    for (std::size_t i=0; i < handOut.size(); ++i)
     {
-        count += getCardValue(hand[i]);
+        count += getCardValue(handOut[i]);
     }
     return count;
 }
 
-void printHand(std::vector<Card> hand)
+void printHand(std::vector<Card> &handOut)
 {
-    for (std::size_t i=0; i < hand.size(); ++i)
+    for (std::size_t i=0; i < handOut.size(); ++i)
     {
-        printCard(hand[i]);
+        printCard(handOut[i]);
         std::cout << ' ';
     }
 }
